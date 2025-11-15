@@ -74,3 +74,44 @@ These ports show the device is running **Windows networking services**.
 - SMB, NetBIOS, and RPC are Windows services  
 - Importance of securing exposed ports  
 
+
+## 🧪 4. Wireshark Packet Analysis
+
+To understand how Nmap works at the packet level, I captured the network traffic using **Wireshark** while performing the SYN scan.
+
+### 🔹 Steps I Performed:
+1. Opened Wireshark and selected the active network interface  
+   (VirtualBox Host-Only Network for 192.168.56.x range).
+2. Applied the display filter:
+   ```
+   tcp.flags.syn == 1
+   ```
+   This filter shows only TCP SYN packets used in port scanning.
+3. Started packet capture.
+4. Ran the command:
+   ```bash
+   nmap -sS 192.168.56.1
+   ```
+5. Observed the SYN and SYN/ACK responses during the scan.
+6. Stopped the capture and analyzed the packet flow.
+
+### 🔹 What I Observed:
+- Wireshark captured multiple **SYN packets** sent from my system to the target IP (192.168.56.1).
+- For **open ports** (135, 139, 445), I saw:
+  - SYN → sent by my machine  
+  - SYN/ACK → sent by target  
+  - RST → sent by Nmap (SYN scan closes connection without completing handshake)
+- This pattern confirms that these ports were **open**.
+- No SYN/ACK packets were received from other ports, which means they were **closed**.
+
+### 🔹 What This Shows:
+- Nmap uses **half-open scanning (SYN scan)** to detect open ports without establishing a full TCP connection.
+- Wireshark visually confirms how port scanning works at the packet level.
+- Open Windows ports (135, 139, 445) match the results found in Nmap’s output.
+
+### 🔹 Learning Outcome:
+Using Wireshark helped me understand:
+- How SYN scans work internally  
+- How open and closed ports respond differently  
+- How to capture and analyze network traffic  
+- The importance of packet-level inspection in cyber security
